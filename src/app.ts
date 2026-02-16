@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from "express";
-import { prisma } from "./app/lib/prisma";
+
+import { indexRoutes } from "./app/routes";
 
 const app: Application = express();
 const PORT = 5000;
@@ -10,18 +11,12 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to parse JSON
 app.use(express.json());
 
+app.use("/api/v1/", indexRoutes);
+
 // Basic route
+
 app.get("/", async (req: Request, res: Response) => {
-  const specialty = await prisma.specialty.create({
-    data: {
-      title: "Cardiology",
-    },
-  });
-  res.status(201).json({
-    success: true,
-    message: "Prisma api is working..",
-    data: specialty,
-  });
+  res.send(`Healthcare Management is running or the Port: ${PORT}`);
 });
 
 export default app;
