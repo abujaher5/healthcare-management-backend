@@ -1,4 +1,4 @@
-import { Role, User, UserStatus } from "../../../generated/prisma/client";
+import { UserStatus } from "../../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 
