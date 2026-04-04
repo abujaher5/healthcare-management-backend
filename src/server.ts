@@ -1,7 +1,7 @@
 import app from "./app.js";
 import { envVars } from "./config/env.js";
 
-const PORT = 5000;
+// const PORT = 5000;
 
 // Start server
 
