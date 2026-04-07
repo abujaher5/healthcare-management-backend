@@ -5,7 +5,7 @@ import status from "http-status";
 import z from "zod";
 import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 import { handleZodError } from "../errorHelpers/handleZodError";
-import AppError from "../errorHelpers/appError";
+import AppError from "../errorHelpers/AppError";
 
 export const globalErrorHandler = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -3,7 +3,7 @@ import express, { Application, Request, Response } from "express";
 import { indexRoutes } from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
-import AppError from "./app/errorHelpers/appError";
+import AppError from "./app/errorHelpers/AppError";
 import status from "http-status";
 
 const app: Application = express();
