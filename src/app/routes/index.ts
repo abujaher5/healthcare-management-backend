@@ -4,10 +4,17 @@ import { authRoutes } from "../module/auth/auth.route";
 import { userRoutes } from "../module/user/user.route";
 import { doctorRoutes } from "../module/doctor/doctor.route";
 
+import { checkAuth } from "../middleware/checkAuth";
+import { Role } from "../../generated/prisma/enums";
+
 const router = Router();
 
 router.use("/auth", authRoutes);
-router.use("/specialties", specialtyRoutes);
+router.use(
+  "/specialties",
+  checkAuth(Role.ADMIN, Role.DOCTOR, Role.SUPER_ADMIN),
+  specialtyRoutes,
+);
 router.use("/users", userRoutes);
 router.use("/doctors", doctorRoutes);
 

@@ -5,6 +5,7 @@ import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
 import AppError from "./app/errorHelpers/AppError";
 import status from "http-status";
+import cookieParser from "cookie-parser";
 
 const app: Application = express();
 const PORT = 5000;
@@ -14,6 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware to parse JSON
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.use("/api/v1/", indexRoutes);
 
