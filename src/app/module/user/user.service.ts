@@ -3,7 +3,11 @@ import { Role, Specialty } from "../../../generated/prisma/client";
 import AppError from "../../errorHelpers/AppError";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
-import { ICreateAdmin, ICreateDoctorPayload } from "./user.interface";
+import {
+  ICreateAdmin,
+  ICreateDoctorPayload,
+  ICreateSuperAdmin,
+} from "./user.interface";
 
 const createDoctor = async (payload: ICreateDoctorPayload) => {
   const specialties: Specialty[] = [];
@@ -127,49 +131,7 @@ const createDoctor = async (payload: ICreateDoctorPayload) => {
   }
 };
 
-// const createAdmin = async (payload: ICreateAdmin) => {
-//   const userExists = await prisma.user.findUnique({
-//     where: {
-//       email: payload.admin.email,
-//     },
-//   });
-
-//   if (userExists) {
-//     throw new AppError(
-//       status.CONFLICT,
-//       "User with this email already exists..",
-//     );
-//   }
-
-//   const { admin, role, password } = payload;
-
-//   const userData = await auth.api.signUpEmail({
-//     body: {
-//       ...admin,
-//       password,
-//       role,
-//       needPasswordChange: true,
-//     },
-//   });
-
-//   try {
-//     const adminData = await prisma.admin.create({
-//       data: { userId: userData.user.id, ...admin },
-//     });
-//     return adminData;
-//   } catch (error) {
-//     console.log("Creating Admin Transaction error  :", error);
-//     await prisma.user.delete({
-//       where: {
-//         id: userData.user.id,
-//       },
-//     });
-//     throw new Error("Failed to create admin");
-//   }
-// };
-
 const createAdmin = async (payload: ICreateAdmin) => {
-  // Step 1: Check if user already exists
   const userExists = await prisma.user.findUnique({
     where: {
       email: payload.admin.email,
@@ -180,7 +142,6 @@ const createAdmin = async (payload: ICreateAdmin) => {
     throw new Error("User with this email already exists");
   }
 
-  // Step 2: Create user account with Better Auth
   const userData = await auth.api.signUpEmail({
     body: {
       email: payload.admin.email,
@@ -192,10 +153,8 @@ const createAdmin = async (payload: ICreateAdmin) => {
     },
   });
 
-  // Step 3: Create admin profile in transaction
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // Create admin record
       const admin = await tx.admin.create({
         data: {
           userId: userData.user.id,
@@ -206,7 +165,6 @@ const createAdmin = async (payload: ICreateAdmin) => {
         },
       });
 
-      // Fetch created admin with user data
       const createdAdmin = await tx.admin.findUnique({
         where: { id: admin.id },
         select: {
@@ -242,7 +200,78 @@ const createAdmin = async (payload: ICreateAdmin) => {
     throw new Error("Failed to create admin");
   }
 };
+
+const createSuperAdmin = async (payload: ICreateSuperAdmin) => {
+  const userExists = await prisma.user.findUnique({
+    where: {
+      email: payload.admin.email,
+    },
+  });
+
+  if (userExists) {
+    throw new Error("Super_Admin with this email already exists");
+  }
+
+  const superAdminData = await auth.api.signUpEmail({
+    body: {
+      email: payload.admin.email,
+      password: payload.password,
+      role: Role.SUPER_ADMIN,
+      name: payload.admin.name,
+      needPasswordChange: true,
+      rememberMe: false,
+    },
+  });
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const admin = await tx.admin.create({
+        data: {
+          userId: superAdminData.user.id,
+          name: payload.admin.name,
+          email: payload.admin.email,
+          profilePhoto: payload.admin.profilePhoto,
+          contactNumber: payload.admin.contactNumber,
+        },
+      });
+
+      const createdSuperAdmin = await tx.admin.findUnique({
+        where: { id: admin.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profilePhoto: true,
+          contactNumber: true,
+          isDeleted: true,
+          createdAt: true,
+          updatedAt: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              status: true,
+            },
+          },
+        },
+      });
+
+      return createdSuperAdmin;
+    });
+
+    return result;
+  } catch (error) {
+    console.log("Create super admin transaction error", error);
+    await prisma.user.delete({
+      where: { id: superAdminData.user.id },
+    });
+    throw new Error("Failed to create super admin");
+  }
+};
 export const userService = {
   createDoctor,
   createAdmin,
+  createSuperAdmin,
 };

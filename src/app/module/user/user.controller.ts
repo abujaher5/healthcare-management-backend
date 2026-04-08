@@ -17,7 +17,6 @@ const createDoctor = async (req: Request, res: Response) => {
 };
 
 const createAdmin = async (req: Request, res: Response) => {
-  console.log("Create admin controller", req.body);
   const result = await userService.createAdmin(req.body);
 
   sendResponse(res, {
@@ -27,8 +26,19 @@ const createAdmin = async (req: Request, res: Response) => {
     data: result,
   });
 };
+const createSuperAdmin = async (req: Request, res: Response) => {
+  const result = await userService.createSuperAdmin(req.body);
+
+  sendResponse(res, {
+    httpStatusCode: status.CREATED,
+    success: true,
+    message: "Super_Admin created successfully",
+    data: result,
+  });
+};
 
 export const userController = {
   createDoctor,
   createAdmin,
+  createSuperAdmin,
 };
