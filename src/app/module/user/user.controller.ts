@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { userService } from "./user.service";
 import { sendResponse } from "../../shared/sendResponse";
 import status from "http-status";
+// import { catchAsync } from "../../shared/catchAsync";
 
 const createDoctor = async (req: Request, res: Response) => {
   const payload = req.body;
@@ -15,6 +16,19 @@ const createDoctor = async (req: Request, res: Response) => {
   });
 };
 
+const createAdmin = async (req: Request, res: Response) => {
+  console.log("Create admin controller", req.body);
+  const result = await userService.createAdmin(req.body);
+
+  sendResponse(res, {
+    httpStatusCode: status.CREATED,
+    success: true,
+    message: "Admin created successfully",
+    data: result,
+  });
+};
+
 export const userController = {
   createDoctor,
+  createAdmin,
 };

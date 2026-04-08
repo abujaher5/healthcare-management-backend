@@ -3,8 +3,7 @@ import express, { Application, Request, Response } from "express";
 import { indexRoutes } from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
-import AppError from "./app/errorHelpers/AppError";
-import status from "http-status";
+
 import cookieParser from "cookie-parser";
 
 const app: Application = express();
@@ -23,7 +22,6 @@ app.use("/api/v1/", indexRoutes);
 // Basic route
 
 app.get("/", async (req: Request, res: Response) => {
-  throw new AppError(status.BAD_REQUEST, "Just testing error handler");
   res.send(`Healthcare Management is running or the Port: ${PORT}`);
 });
 
